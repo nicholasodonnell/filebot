@@ -58,7 +58,6 @@ const symlinkMissingFilesTo = uncurryN(2, dir =>
 const filebot = async ({ source, destination, safeDelete = 10, snapshot }) => {
   try {
     const snapshotFiles = loadSnapshot(snapshot)
-    const sourceFiles = getFilesAndSerializeFrom(source)
 
     // remove any files that were deleted on the source directory (since the previous run) from the destination directory
     console.log('Removing files that were deleted:\n')
@@ -66,12 +65,12 @@ const filebot = async ({ source, destination, safeDelete = 10, snapshot }) => {
 
     // move any non-symlinked files that exist on the source directory to the destination directory
     console.log('\n\nMoving unsynced files:\n')
+    const sourceFiles = getFilesAndSerializeFrom(source)
     moveUnsycnedFilesTo(destination, sourceFiles)
-
-    const destinationFiles = getFilesAndSerializeFrom(destination)
 
     // symlink any files that exist on the destination directory to the source directory
     console.log('\n\nSymlinking missing files:\n')
+    const destinationFiles = getFilesAndSerializeFrom(destination)
     symlinkMissingFilesTo(source, destinationFiles)
 
     // remove any files that exist on the source directory but not the destination directory
