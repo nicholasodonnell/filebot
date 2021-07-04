@@ -96,7 +96,7 @@ if (require.main === module) {
 
   console.log(`Starting app with props:\n${JSON.stringify(props)}\n\n`)
 
-  filebot(...parseProps(props))
+  filebot(parseProps(props))
     .then(() => console.log('\n\nFilebot complete'))
     .then(() => process.exit(0))
     .catch(e => {

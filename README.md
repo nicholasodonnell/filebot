@@ -14,7 +14,7 @@
 ## Setup
 
 1. Build the filebot docker images by running `make build`.
-2. Create a `snapshot.json` file.
+2. Create a `snapshot.json` file by running `touch snapshot.json`.
 
 ## Usage
 
