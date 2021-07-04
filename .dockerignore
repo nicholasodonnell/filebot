@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+
+# filesystem
+.DS_Store
+Thumbs.db
+
+# git
+.git
+
+# node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# project
+logo

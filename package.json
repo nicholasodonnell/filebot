@@ -1,0 +1,18 @@
+{
+  "name": "filebot",
+  "version": "1.0.0",
+  "description": "File manager that mirrors two directories",
+  "main": "index.js",
+  "repository": "https://github.com/nicholasodonnell/filebot",
+  "author": "Nicholas O'Donnell <nicholas@nicholasodonnell.com>",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^8.0.0",
+    "ramda": "^0.27.1",
+    "verror": "^1.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.30.0",
+    "eslint-plugin-import": "^2.23.4"
+  }
+}
