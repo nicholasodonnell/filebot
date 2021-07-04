@@ -20,12 +20,34 @@
 
 ```bash
 make run \
-  soureDirectoryHostPath=<path> \
-  sourceDirectoryContainerPath=<path> \
-  destinationDirectoryHostPath=<path> \
-  destinationDirectoryContainerPath=<path> \
-  snapshotPath=<path> \
-  [safeDelete=<number>]
+  soureDirectoryHostPath=<soureDirectoryHostPath> \
+  sourceDirectoryContainerPath=<sourceDirectoryContainerPath> \
+  destinationDirectoryHostPath=<destinationDirectoryHostPath> \
+  destinationDirectoryContainerPath=<destinationDirectoryContainerPath> \
+  snapshotPath=<snapshotPath> \
+  [safeDelete=<safeDelete>]
+```
+
+```bash
+docker run \
+  --name filebot \
+  --rm \
+  --volume <soureDirectoryHostPath>:<sourceDirectoryContainerPath> \
+  --volume <destinationDirectoryHostPath>:<destinationDirectoryContainerPath> \
+  --volume <snapshotPath>:/snapshot.json \
+  nicholasodonnell/filebot:latest \
+    --source=<sourceDirectoryContainerPath> \
+    --destination=<destinationDirectoryContainerPath> \
+    --snapshot=/snapshot.json \
+    [--safeDelete=<safeDelete>]
+```
+
+```bash
+node index \
+  --source=<soureDirectoryHostPath> \
+  --destination=<destinationDirectoryHostPath> \
+  --snapshot=<snapshotPath> \
+ [--safeDelete=<safeDelete>]
 ```
 
 ## Options
