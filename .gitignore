@@ -3,4 +3,4 @@ node_modules
 
 # app
 snapshot.json
-log.json
+output.log
