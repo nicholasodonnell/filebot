@@ -28,7 +28,7 @@ make run \
   [safeDelete=<safeDelete>] \
   [permissions=<permissions>] \
   [puid=<puid>] \
-  [pgid=<pgid>] \
+  [pgid=<pgid>]
 ```
 
 ```bash
