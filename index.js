@@ -25,6 +25,8 @@ const parseNumber = value => {
 
 const parseProps = evolve({
   safeDelete: parseNumber,
+  puid: parseNumber,
+  pgid: parseNumber,
 })
 
 const getFilesAndSerializeFrom = dir =>
