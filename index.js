@@ -23,11 +23,22 @@ const parseNumber = value => {
   return parsedValue
 }
 
-const parseProps = evolve({
+const parseOpts = evolve({
   safeDelete: parseNumber,
   puid: parseNumber,
   pgid: parseNumber,
 })
+
+const getDateTime = () => {
+  const now = new Date()
+
+  return now.getDate() + '/' +
+    (now.getMonth() + 1)  + '/' +
+    now.getFullYear() + ' ' +
+    now.getHours() + ':' +
+    now.getMinutes() + ':' +
+    now.getSeconds()
+}
 
 const getFilesAndSerializeFrom = dir =>
   compose(
@@ -58,48 +69,65 @@ const symlinkMissingFilesTo = uncurryN(2, dir =>
   ),
 )
 
-const filebot = async ({
-  destination,
-  permissions = '777',
-  pgid,
-  puid,
-  safeDelete = 10,
-  snapshot,
-  source,
-}) => {
+const filebot = opts => {
+  const {
+    destination,
+    permissions = '777',
+    pgid,
+    puid,
+    safeDelete = 10,
+    snapshot,
+    source,
+  } = opts
+
+  console.log(`------------------------------`)
+  console.log(`\n[Starting filebot]:`)
+  console.log(`Opts: ${JSON.stringify(opts)}`)
+  console.log(`Date: ${getDateTime()}`)
+
   try {
+    console.log('\n[Loading previous snapshot]:')
     const snapshotFiles = loadSnapshot(snapshot)
 
     // remove any files that were deleted on the source directory (since the previous run) from the destination directory
-    console.log('Removing files that were deleted:\n')
+    console.log('\n[Removing files that were deleted]:')
     removeFilesThatDontExistOnFrom(source, destination, { safeDelete }, snapshotFiles)
 
     // move any non-symlinked files that exist on the source directory to the destination directory
-    console.log('\n\nMoving unsynced files:\n')
+    console.log('\n[Moving unsynced files]:')
     const sourceFiles = getFilesAndSerializeFrom(source)
     moveUnsycnedFilesTo(destination, sourceFiles)
 
     // symlink any files that exist on the destination directory to the source directory
-    console.log('\n\nSymlinking missing files:\n')
+    console.log('\n[Symlinking missing files]:')
     const destinationFiles = getFilesAndSerializeFrom(destination)
     symlinkMissingFilesTo(source, destinationFiles)
 
     // remove any files that exist on the source directory but not the destination directory
-    console.log('\n\nRemoving files from source that don\'t exist on destination:\n')
+    console.log('\n[Removing files from source that don\'t exist on destination]:')
     removeFilesThatDontExistOnFrom(destination, source, { safeDelete }, sourceFiles)
 
-    console.log('\n\nSaving latest snapshot:')
+    console.log('\n[Saving latest snapshot]:')
     saveSnapshot(snapshot, getFilesAndSerializeFrom(source))
 
-    console.log('\n\nSetting permissions:')
+    console.log('\n[Setting permissions]:')
     setPerimissionsFor(source, { permissions, pgid, puid })
+
+    console.log('\n[Filebot complete]')
   } catch (e) {
-    throw new VError(e, `Filebot failed`)
+    const error = new VError(e, `Filebot failed`)
+
+    console.log('\n[Filebot failed]:')
+    console.error(VError.fullStack(error))
+
+    throw error
+  } finally {
+    console.log(`\n------------------------------\n\n`)
   }
 }
 
 if (require.main === module) {
-  const props = commander.program
+  const opts = commander.program
     .requiredOption('--source <path>', 'Source path')
     .requiredOption('--destination <path>', 'Destination path')
     .requiredOption('--snapshot <path>', 'Snapshot path')
@@ -110,16 +138,13 @@ if (require.main === module) {
     .parse(process.argv)
     .opts()
 
-  console.log(`Starting app with props:\n${JSON.stringify(props)}\n\n`)
+  try {
+    filebot(parseOpts(opts))
 
-  filebot(parseProps(props))
-    .then(() => console.log('\n\nFilebot complete'))
-    .then(() => process.exit(0))
-    .catch(e => {
-      console.error(VError.fullStack(e))
-
-      process.exit(1)
-    })
+    process.exit(0)
+  } catch (e) {
+    process.exit(1)
+  }
 }
 
 module.exports = filebot
