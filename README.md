@@ -77,10 +77,10 @@ node index \
 
 ```bash
 make run \
-  soureDirectoryHostPath=/home/libraries \
-  sourceDirectoryContainerPath=/libraries \
-  destinationDirectoryHostPath=/home/remote \
-  destinationDirectoryContainerPath=/remote \
+  soureDirectoryHostPath=/home/dir \
+  sourceDirectoryContainerPath=/dir \
+  destinationDirectoryHostPath=/home/backup \
+  destinationDirectoryContainerPath=/backup \
   snapshotPath=/home/snapshot.json \
   safeDelete=10 \
   permissions=777 \

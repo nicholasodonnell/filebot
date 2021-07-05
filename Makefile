@@ -31,4 +31,4 @@ run: ## run filebot
 	help \
 	build \
 	clean \
-	run \
+	run

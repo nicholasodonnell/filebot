@@ -29,17 +29,6 @@ const parseOpts = evolve({
   pgid: parseNumber,
 })
 
-const getDateTime = () => {
-  const now = new Date()
-
-  return now.getDate() + '/' +
-    (now.getMonth() + 1)  + '/' +
-    now.getFullYear() + ' ' +
-    now.getHours() + ':' +
-    now.getMinutes() + ':' +
-    now.getSeconds()
-}
-
 const getFilesAndSerializeFrom = dir =>
   compose(
     serializeFilesFrom(dir),
@@ -83,7 +72,7 @@ const filebot = opts => {
   console.log(`------------------------------`)
   console.log(`\n[Starting filebot]:`)
   console.log(`Opts: ${JSON.stringify(opts)}`)
-  console.log(`Date: ${getDateTime()}`)
+  console.log(`Date: ${new Date().toString()}`)
 
   try {
     console.log('\n[Loading previous snapshot]:')
