@@ -25,7 +25,10 @@ make run \
   destinationDirectoryHostPath=<destinationDirectoryHostPath> \
   destinationDirectoryContainerPath=<destinationDirectoryContainerPath> \
   snapshotPath=<snapshotPath> \
-  [safeDelete=<safeDelete>]
+  [safeDelete=<safeDelete>] \
+  [permissions=<permissions>] \
+  [puid=<puid>] \
+  [pgid=<pgid>] \
 ```
 
 ```bash
@@ -39,7 +42,10 @@ docker run \
     --source=<sourceDirectoryContainerPath> \
     --destination=<destinationDirectoryContainerPath> \
     --snapshot=/snapshot.json \
-    [--safeDelete=<safeDelete>]
+    [--safeDelete=<safeDelete>] \
+    [--permissions=<permissions>] \
+    [--puid=<puid>] \
+    [--pgid=<pgid>]
 ```
 
 ```bash
@@ -47,19 +53,25 @@ node index \
   --source=<soureDirectoryHostPath> \
   --destination=<destinationDirectoryHostPath> \
   --snapshot=<snapshotPath> \
- [--safeDelete=<safeDelete>]
+  [--safeDelete=<safeDelete>] \
+  [--permissions=<permissions>] \
+  [--puid=<puid>] \
+  [--pgid=<pgid>]
 ```
 
 ## Options
 
-| Option                              | Description                                                                                        | Default  |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------- | -------- |
-| `soureDirectoryHostPath`            | **Absolute** host path for the source directory.                                                   | Required |
-| `sourceDirectoryContainerPath`      | **Absolute** container path for the source folder.                                                 | Required |
-| `destinationDirectoryHostPath`      | **Absolute** host path for the destination directory.                                              | Required |
-| `destinationDirectoryContainerPath` | **Absolute** container path for the destination folder (any symlinked files will be to this path). | Required |
-| `snapshotPath`                      | **Absolute** host snapshot file path.                                                              | Required |
-| `safeDelete`                        | Number of files to be safely deleted. Any value greater than this will be skipped.                 | `10`     |
+| Option                              | Description                                                                                        | Default   |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------- | --------- |
+| `soureDirectoryHostPath`            | **Absolute** host path for the source directory.                                                   | Required  |
+| `sourceDirectoryContainerPath`      | **Absolute** container path for the source folder.                                                 | Required  |
+| `destinationDirectoryHostPath`      | **Absolute** host path for the destination directory.                                              | Required  |
+| `destinationDirectoryContainerPath` | **Absolute** container path for the destination folder (any symlinked files will be to this path). | Required  |
+| `snapshotPath`                      | **Absolute** host snapshot file path.                                                              | Required  |
+| `safeDelete`                        | Number of files to be safely deleted. Any value greater than this will be skipped.                 | `10`      |
+| `permissions`                       | CHMOD permissions of source directory.                                                             | `777`     |
+| `puid`                              | CHOWN user of source directory.                                                                    | undefined |
+| `pgid`                              | CHOWN group of source directory.                                                                   | undefined |
 
 ### Example
 
@@ -70,5 +82,8 @@ make run \
   destinationDirectoryHostPath=/home/remote \
   destinationDirectoryContainerPath=/remote \
   snapshotPath=/home/snapshot.json \
-  safeDelete=10
+  safeDelete=10 \
+  permissions=777 \
+  puid=1000 \
+  pgid=1000
 ```

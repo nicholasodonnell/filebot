@@ -9,6 +9,7 @@ const getUnsyncedFilesIn = require('./lib/getUnsyncedFilesIn')
 const moveFilesTo = require('./lib/moveFilesTo')
 const removeFilesFrom = require('./lib/removeFilesFrom')
 const serializeFilesFrom = require('./lib/serializeFilesFrom')
+const setPerimissionsFor = require('./lib/setPerimissionsFor')
 const { loadSnapshot, saveSnapshot } = require('./lib/snapshot')
 const symlinkFilesTo = require('./lib/symlinkFilesTo')
 
@@ -55,7 +56,15 @@ const symlinkMissingFilesTo = uncurryN(2, dir =>
   ),
 )
 
-const filebot = async ({ source, destination, safeDelete = 10, snapshot }) => {
+const filebot = async ({
+  destination,
+  permissions = '777',
+  pgid,
+  puid,
+  safeDelete = 10,
+  snapshot,
+  source,
+}) => {
   try {
     const snapshotFiles = loadSnapshot(snapshot)
 
@@ -79,6 +88,9 @@ const filebot = async ({ source, destination, safeDelete = 10, snapshot }) => {
 
     console.log('\n\nSaving latest snapshot:')
     saveSnapshot(snapshot, getFilesAndSerializeFrom(source))
+
+    console.log('\n\nSetting permissions:')
+    setPerimissionsFor(source, { permissions, pgid, puid })
   } catch (e) {
     throw new VError(e, `Filebot failed`)
   }
@@ -90,6 +102,9 @@ if (require.main === module) {
     .requiredOption('--destination <path>', 'Destination path')
     .requiredOption('--snapshot <path>', 'Snapshot path')
     .option('--safeDelete <number>', 'Safe delete', 10)
+    .option('--permissions <string>', 'Source permissions')
+    .option('--puid <string>', 'Source owner user')
+    .option('--pgid <string>', 'Source owner group')
     .parse(process.argv)
     .opts()
 
