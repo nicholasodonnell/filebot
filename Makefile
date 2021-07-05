@@ -22,7 +22,10 @@ run: ## run filebot
 			--source=$(sourceDirectoryContainerPath) \
 			--destination=$(destinationDirectoryContainerPath) \
 			--snapshot=/snapshot.json \
-			--safeDelete=$(safeDelete)
+			--safeDelete=$(safeDelete) \
+    	--permissions=$(permissions) \
+    	--puid=$(puid) \
+    	--pgid=$(pgid)
 
 .PHONY: \
 	help \
