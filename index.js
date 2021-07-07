@@ -60,13 +60,13 @@ const symlinkMissingFilesTo = uncurryN(2, dir =>
 
 const filebot = opts => {
   const {
-    destination,
-    permissions = '777',
+    permissions,
     pgid,
+    primary,
     puid,
+    replica,
     safeDelete = 10,
     snapshot,
-    source,
   } = opts
 
   console.log(`------------------------------`)
@@ -75,32 +75,35 @@ const filebot = opts => {
   console.log(`Date: ${new Date().toString()}`)
 
   try {
+    // grab previous snapshot
     console.log('\n[Loading previous snapshot]:')
-    const snapshotFiles = loadSnapshot(snapshot)
+    const replicaSnapshotFiles = loadSnapshot(snapshot)
 
-    // remove any files that were deleted on the source directory (since the previous run) from the destination directory
-    console.log('\n[Removing files that were deleted]:')
-    removeFilesThatDontExistOnFrom(source, destination, { safeDelete }, snapshotFiles)
+    // remove any files that were deleted on the replica directory from the primary directory
+    console.log('\n[Removing deleted files]:')
+    removeFilesThatDontExistOnFrom(replica, primary, { safeDelete }, replicaSnapshotFiles)
 
-    // move any non-symlinked files that exist on the source directory to the destination directory
+    // move any non-symlinked files that exist on the replica directory to the primary directory
     console.log('\n[Moving unsynced files]:')
-    const sourceFiles = getFilesAndSerializeFrom(source)
-    moveUnsycnedFilesTo(destination, sourceFiles)
+    const replicaFiles = getFilesAndSerializeFrom(replica)
+    moveUnsycnedFilesTo(primary, replicaFiles)
 
-    // symlink any files that exist on the destination directory to the source directory
+    // symlink any files that exist on the primary directory to the replica directory
     console.log('\n[Symlinking missing files]:')
-    const destinationFiles = getFilesAndSerializeFrom(destination)
-    symlinkMissingFilesTo(source, destinationFiles)
+    const primaryFiles = getFilesAndSerializeFrom(primary)
+    symlinkMissingFilesTo(replica, primaryFiles)
 
-    // remove any files that exist on the source directory but not the destination directory
-    console.log('\n[Removing files from source that don\'t exist on destination]:')
-    removeFilesThatDontExistOnFrom(destination, source, { safeDelete }, sourceFiles)
+    // remove any files that were deleted on the primary directory from the replica directory.
+    console.log('\n[Removing files that no longer exist]:')
+    removeFilesThatDontExistOnFrom(primary, replica, { safeDelete }, replicaFiles)
 
+    // save latest snapshot
     console.log('\n[Saving latest snapshot]:')
-    saveSnapshot(snapshot, getFilesAndSerializeFrom(source))
+    saveSnapshot(snapshot, getFilesAndSerializeFrom(replica))
 
+    // set replica permissions
     console.log('\n[Setting permissions]:')
-    setPerimissionsFor(source, { permissions, pgid, puid })
+    setPerimissionsFor(replica, { permissions, pgid, puid })
 
     console.log('\n[Filebot complete]')
   } catch (e) {
@@ -117,13 +120,13 @@ const filebot = opts => {
 
 if (require.main === module) {
   const opts = commander.program
-    .requiredOption('--source <path>', 'Source path')
-    .requiredOption('--destination <path>', 'Destination path')
+    .requiredOption('--primary <path>', 'Primary path')
+    .requiredOption('--replica <path>', 'Replica path')
     .requiredOption('--snapshot <path>', 'Snapshot path')
-    .option('--safeDelete <number>', 'Safe delete', 10)
-    .option('--permissions <string>', 'Source permissions')
-    .option('--puid <string>', 'Source owner user')
-    .option('--pgid <string>', 'Source owner group')
+    .option('--safeDelete <number>', 'Number of items to safely delete')
+    .option('--permissions <string>', 'Replica permissions')
+    .option('--puid <string>', 'Replica owner user')
+    .option('--pgid <string>', 'Replica owner group')
     .parse(process.argv)
     .opts()
 

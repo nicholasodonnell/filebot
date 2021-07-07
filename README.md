@@ -1,10 +1,12 @@
 <img src="logo/banner.png" />
 
-**Filebot** is a file manager that mirrors two directories. Filebot has four goals:
-1. Move any non-symlinked files that exist on the source directory to the destination directory.
-2. Symlink any files that exist on the destination directory to the source directory.
-3. Remove any files that exist on the source directory but not the destination directory.
-4. Remove any files that were deleted on the source directory (since the previous run) from the destination directory.
+**Filebot** is a file manager that syncs two directories: a **replica** which acts as a mirror, and a **primary** which acts as an authority. Filebot has four goals:
+1. Move any non-symlinked files that exist on the replica directory to the primary directory.
+2. Symlink any files that exist on the primary directory to the replica directory.
+3. Remove any files that were deleted on the primary directory from the replica directory.
+4. Remove any files that were deleted on the replica directory from the primary directory (see below).
+
+After a sync occurs Filebot takes a snapshot of the replica directory. Upon a subsequent sync any files that were removed on the replica directory will be removed from the primary directory.
 
 ### Requirements
 
@@ -19,28 +21,15 @@
 ## Usage
 
 ```bash
-make run \
-  soureDirectoryHostPath=<soureDirectoryHostPath> \
-  sourceDirectoryContainerPath=<sourceDirectoryContainerPath> \
-  destinationDirectoryHostPath=<destinationDirectoryHostPath> \
-  destinationDirectoryContainerPath=<destinationDirectoryContainerPath> \
-  snapshotPath=<snapshotPath> \
-  [safeDelete=<safeDelete>] \
-  [permissions=<permissions>] \
-  [puid=<puid>] \
-  [pgid=<pgid>]
-```
-
-```bash
 docker run \
   --name filebot \
   --rm \
-  --volume <soureDirectoryHostPath>:<sourceDirectoryContainerPath> \
-  --volume <destinationDirectoryHostPath>:<destinationDirectoryContainerPath> \
+  --volume <primaryDirectoryHostPath>:<primaryDirectoryContainerPath> \
+  --volume <replicaDirectoryHostPath>:<replicaDirectoryContainerPath> \
   --volume <snapshotPath>:/snapshot.json \
   nicholasodonnell/filebot:latest \
-    --source=<sourceDirectoryContainerPath> \
-    --destination=<destinationDirectoryContainerPath> \
+    --primary=<primaryDirectoryContainerPath> \
+    --replica=<replicaDirectoryContainerPath> \
     --snapshot=/snapshot.json \
     [--safeDelete=<safeDelete>] \
     [--permissions=<permissions>] \
@@ -50,8 +39,8 @@ docker run \
 
 ```bash
 node index \
-  --source=<soureDirectoryHostPath> \
-  --destination=<destinationDirectoryHostPath> \
+  --primary=<primaryDirectoryHostPath> \
+  --replica=<replicaDirectoryHostPath> \
   --snapshot=<snapshotPath> \
   [--safeDelete=<safeDelete>] \
   [--permissions=<permissions>] \
@@ -61,29 +50,15 @@ node index \
 
 ## Options
 
-| Option                              | Description                                                                                        | Default   |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------- | --------- |
-| `soureDirectoryHostPath`            | **Absolute** host path for the source directory.                                                   | Required  |
-| `sourceDirectoryContainerPath`      | **Absolute** container path for the source folder.                                                 | Required  |
-| `destinationDirectoryHostPath`      | **Absolute** host path for the destination directory.                                              | Required  |
-| `destinationDirectoryContainerPath` | **Absolute** container path for the destination folder (any symlinked files will be to this path). | Required  |
-| `snapshotPath`                      | **Absolute** host snapshot file path.                                                              | Required  |
-| `safeDelete`                        | Number of files to be safely deleted. Any value greater than this will be skipped.                 | `10`      |
-| `permissions`                       | CHMOD permissions of source directory.                                                             | `777`     |
-| `puid`                              | CHOWN user of source directory.                                                                    | undefined |
-| `pgid`                              | CHOWN group of source directory.                                                                   | undefined |
+| Option                          | Description                                                                                                                       | Default   |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `primaryDirectoryHostPath`      | **Absolute** host path for the primary directory.                                                                                 | Required  |
+| `primaryDirectoryContainerPath` | **Absolute** container path for the destination folder (**docker only** - any symlinked files will be to this path).              | Required  |
+| `replicaDirectoryHostPath`      | **Absolute** host path for the replica directory.                                                                                 | Required  |
+| `replicaDirectoryContainerPath` | **Absolute** container path for the replica folder (**docker only**).                                                             | Required  |
+| `snapshotPath`                  | **Absolute** host path for the snapshot file.                                                                                     | Required  |
+| `safeDelete`                    | Number of files that can be safely deleted. If filebot detects a number of deleted files greater than this, they will be ignored. | `10`      |
+| `permissions`                   | CHMOD permissions of the replica directory.                                                                                       | undefined |
+| `puid`                          | CHOWN user of the replica directory.                                                                                              | undefined |
+| `pgid`                          | CHOWN group of the replica directory.                                                                                             | undefined |
 
-### Example
-
-```bash
-make run \
-  soureDirectoryHostPath=/home/dir \
-  sourceDirectoryContainerPath=/dir \
-  destinationDirectoryHostPath=/home/backup \
-  destinationDirectoryContainerPath=/backup \
-  snapshotPath=/home/snapshot.json \
-  safeDelete=10 \
-  permissions=777 \
-  puid=1000 \
-  pgid=1000
-```

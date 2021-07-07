@@ -11,24 +11,7 @@ clean: ## remove docker images
 		--force \
 			nicholasodonnell/filebot:latest
 
-run: ## run filebot
-	@docker run \
-		--name filebot \
-		--rm \
-		--volume $(soureDirectoryHostPath):$(sourceDirectoryContainerPath) \
-		--volume $(destinationDirectoryHostPath):$(destinationDirectoryContainerPath) \
-		--volume $(snapshotPath):/snapshot.json \
-		nicholasodonnell/filebot:latest \
-			--source=$(sourceDirectoryContainerPath) \
-			--destination=$(destinationDirectoryContainerPath) \
-			--snapshot=/snapshot.json \
-			--safeDelete=$(safeDelete) \
-    	--permissions=$(permissions) \
-    	--puid=$(puid) \
-    	--pgid=$(pgid)
-
 .PHONY: \
 	help \
 	build \
-	clean \
-	run
+	clean
