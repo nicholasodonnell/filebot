@@ -48,17 +48,29 @@ node index \
   [--pgid=<pgid>]
 ```
 
+## Paths
+
+All paths given to filebot should be **absolute**. See below for more details:
+
+| Path                            | Description                                           |
+| ------------------------------- | ----------------------------------------------------- |
+| `primaryDirectoryHostPath`      | Host path for the primary directory.                  |
+| `primaryDirectoryContainerPath` | Container path for the primary directory (see below). |
+| `replicaDirectoryHostPath`      | Host path for the replica directory.                  |
+| `replicaDirectoryContainerPath` | Container path for the replica directory.             |
+| `snapshotPath`                  | Host path for the replica's snapshot.json file.       |
+
+When using docker please note that any symlinks created will point to the primary directory **as mounted on the container**. This can be useful when you're using the primary & replica directories in other containers such as Plex. Otherwise, ensure the paths on your host and container are identical for symlinks to work properly.
+
 ## Options
 
-| Option                          | Description                                                                                                                       | Default   |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| `primaryDirectoryHostPath`      | **Absolute** host path for the primary directory.                                                                                 | Required  |
-| `primaryDirectoryContainerPath` | **Absolute** container path for the destination folder (**docker only** - any symlinked files will be to this path).              | Required  |
-| `replicaDirectoryHostPath`      | **Absolute** host path for the replica directory.                                                                                 | Required  |
-| `replicaDirectoryContainerPath` | **Absolute** container path for the replica folder (**docker only**).                                                             | Required  |
-| `snapshotPath`                  | **Absolute** host path for the snapshot file.                                                                                     | Required  |
-| `safeDelete`                    | Number of files that can be safely deleted. If filebot detects a number of deleted files greater than this, they will be ignored. | `10`      |
-| `permissions`                   | CHMOD permissions of the replica directory.                                                                                       | undefined |
-| `puid`                          | CHOWN user of the replica directory.                                                                                              | undefined |
-| `pgid`                          | CHOWN group of the replica directory.                                                                                             | undefined |
+| Option        | Description                                                                                                                       | Default   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `primary`     | Path for the primary directory.                                                                                                   | Required  |
+| `replica`     | Path for the replica directory.                                                                                                   | Required  |
+| `snapshot`    | Host path for the replica's snapshot.json file.                                                                                   | Required  |
+| `safeDelete`  | Number of files that can be safely deleted. If filebot detects a number of deleted files greater than this, they will be ignored. | `10`      |
+| `permissions` | CHMOD permissions of the replica directory.                                                                                       | undefined |
+| `puid`        | CHOWN user of the replica directory.                                                                                              | undefined |
+| `pgid`        | CHOWN group of the replica directory.                                                                                             | undefined |
 
