@@ -70,9 +70,8 @@ const filebot = opts => {
   } = opts
 
   console.log(`------------------------------`)
-  console.log(`\n[Starting filebot]:`)
+  console.log(`\n[Starting filebot - ${new Date().toLocaleString()}]:`)
   console.log(`Opts: ${JSON.stringify(opts)}`)
-  console.log(`Date: ${new Date().toString()}`)
 
   try {
     // grab previous snapshot
@@ -105,11 +104,11 @@ const filebot = opts => {
     console.log('\n[Setting permissions]:')
     setPerimissionsFor(replica, { permissions, pgid, puid })
 
-    console.log('\n[Filebot complete]')
+    console.log(`\n[Filebot complete - ${new Date().toLocaleString()}]`)
   } catch (e) {
     const error = new VError(e, `Filebot failed`)
 
-    console.log('\n[Filebot failed]:')
+    console.log(`\n[Filebot failed - ${new Date().toLocaleString()}]:`)
     console.error(VError.fullStack(error))
 
     throw error
