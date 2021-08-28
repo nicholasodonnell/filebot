@@ -35,9 +35,9 @@ const getFilesAndSerializeFrom = dir =>
     getFilesFrom,
   )(dir)
 
-const removeFilesThatDontExistOnFrom = uncurryN(4, (getFrom, removeFrom, opts) =>
+const removeFilesThatDontExistOnFrom = uncurryN(4, (opts, getFrom, removeFrom) =>
   compose(
-    removeFilesFrom(removeFrom, opts),
+    removeFilesFrom(opts, removeFrom),
     getMissingFilesFrom(getFrom),
   ),
 )
@@ -80,7 +80,7 @@ const filebot = opts => {
 
     // remove any files that were deleted on the replica directory from the primary directory
     console.log('\n[Removing deleted files]:')
-    removeFilesThatDontExistOnFrom(replica, primary, { safeDelete }, replicaSnapshotFiles)
+    removeFilesThatDontExistOnFrom({ safeDelete }, replica, primary, replicaSnapshotFiles)
 
     // move any non-symlinked files that exist on the replica directory to the primary directory
     console.log('\n[Moving unsynced files]:')
@@ -94,7 +94,7 @@ const filebot = opts => {
 
     // remove any files that were deleted on the primary directory from the replica directory.
     console.log('\n[Removing files that no longer exist]:')
-    removeFilesThatDontExistOnFrom(primary, replica, { safeDelete }, replicaFiles)
+    removeFilesThatDontExistOnFrom({ safeDelete }, primary, replica, replicaFiles)
 
     // save latest snapshot
     console.log('\n[Saving latest snapshot]:')
