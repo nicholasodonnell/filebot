@@ -6,12 +6,12 @@ const createMissingPathsOn = require('./lib/createMissingPathsOn')
 const getFilesFrom = require('./lib/getFilesFrom')
 const getMissingFilesFrom = require('./lib/getMissingFilesFrom')
 const getUnsyncedFilesIn = require('./lib/getUnsyncedFilesIn')
-const moveFilesTo = require('./lib/moveFilesTo')
 const removeFilesFrom = require('./lib/removeFilesFrom')
 const serializeFilesFrom = require('./lib/serializeFilesFrom')
 const setPerimissionsFor = require('./lib/setPerimissionsFor')
 const { loadSnapshot, saveSnapshot } = require('./lib/snapshot')
 const symlinkFilesTo = require('./lib/symlinkFilesTo')
+const syncFilesTo = require('./lib/syncFilesTo')
 
 const parseNumber = value => {
   const parsedValue = parseInt(value, 10)
@@ -42,9 +42,9 @@ const removeFilesThatDontExistOnFrom = uncurryN(4, (opts, getFrom, removeFrom) =
   ),
 )
 
-const moveUnsycnedFilesTo = uncurryN(2, dir =>
+const syncUnsycnedFilesTo = uncurryN(2, dir =>
   compose(
-    moveFilesTo(dir),
+    syncFilesTo(dir),
     tap(createMissingPathsOn(dir)),
     getUnsyncedFilesIn,
   ),
@@ -83,9 +83,10 @@ const filebot = opts => {
     removeFilesThatDontExistOnFrom({ safeDelete }, replica, primary, replicaSnapshotFiles)
 
     // move any non-symlinked files that exist on the replica directory to the primary directory
-    console.log('\n[Moving unsynced files]:')
+    // and symlink back to the replica directory
+    console.log('\n[Syncing unsynced files]:')
     const replicaFiles = getFilesAndSerializeFrom(replica)
-    moveUnsycnedFilesTo(primary, replicaFiles)
+    syncUnsycnedFilesTo(primary, replicaFiles)
 
     // symlink any files that exist on the primary directory to the replica directory
     console.log('\n[Symlinking missing files]:')
